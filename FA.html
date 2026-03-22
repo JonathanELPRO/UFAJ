@@ -175,23 +175,43 @@
         }
 
         function createTextSprite(text) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 600; canvas.height = 150;
-            const ctx = canvas.getContext('2d');
-            ctx.font = '55px Caveat';
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            // Efecto de brillo en texto
-            ctx.shadowColor = "white";
-            ctx.shadowBlur = 10;
-            ctx.fillText(text, 300, 80);
-            
-            const tex = new THREE.CanvasTexture(canvas);
-            const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
-            const sprite = new THREE.Sprite(mat);
-            sprite.scale.set(160, 40, 1);
-            return sprite;
-        }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // 1. Definimos la fuente primero para poder medirla
+    const fontSize = 60;
+    ctx.font = `${fontSize}px Caveat`;
+    
+    // 2. Medimos exactamente cuánto espacio ocupa el texto
+    const textMetrics = ctx.measureText(text);
+    const textWidth = Math.ceil(textMetrics.width) + 40; // +40 para un margen extra
+    
+    // 3. Ajustamos el tamaño del canvas dinámicamente
+    canvas.width = textWidth;
+    canvas.height = 100; // Un alto suficiente para la fuente de 60px
+    
+    // 4. Volvemos a configurar el contexto (se resetea al cambiar width/height)
+    ctx.font = `${fontSize}px Caveat`;
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = "white"; 
+    ctx.shadowBlur = 8;
+    
+    // Dibujamos en el centro del nuevo ancho
+    ctx.fillText(text, canvas.width / 2, 70); 
+
+    const tex = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+    const sprite = new THREE.Sprite(mat);
+    
+    // 5. Ajustamos la escala del Sprite proporcionalmente al texto
+    // Dividimos por 4 (o el factor que prefieras) para que el tamaño en 3D sea coherente
+    const scaleX = textWidth / 4;
+    const scaleY = 25; // Alto fijo para mantener la proporción de la letra
+    sprite.scale.set(scaleX, scaleY, 1);
+    
+    return sprite;
+}
 
         current.mensajes.forEach((msg) => {
             const textSprite = createTextSprite(msg);
